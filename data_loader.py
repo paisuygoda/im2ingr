@@ -14,9 +14,12 @@ def default_loader(path):
         # print path
         return Image.new('RGB', (224,224), 'white')
 
+
 class ImagerLoader(data.Dataset):
     def __init__(self, img_path, transform=None, target_transform=None,
                  loader=default_loader,square=False,data_path=None,partition=None,sem_reg=None):
+        ingr_id, _ = torchwordemb.load_word2vec_bin(opts.ingrW2V)
+        self.ingr_id = ingr_id
 
         if data_path==None:
             raise Exception('No data path specified.')
@@ -26,84 +29,60 @@ class ImagerLoader(data.Dataset):
         else:
             self.partition=partition
 
-        self.env = lmdb.open(os.path.join(data_path,partition+'_lmdb'), max_readers=1, readonly=True, lock=False,
-                             readahead=False, meminit=False)
-
-        with open(os.path.join(data_path,partition+'_keys.pkl'),'rb') as f:
+        with open(os.path.join(data_path,partition+'_images.p'),'rb') as f:
             self.ids = pickle.load(f)
 
         self.square  = square
-        self.imgPath = img_path
-        self.mismtch = 0.8
-	self.maxInst = 20
 
-	if sem_reg is not None:
-	    self.semantic_reg = sem_reg
+        self.imgPath = img_path
+        self.mismtch = 0.1
+        self.maxInst = 20
+        with open(os.path.join(data_path,'ingredients_dict.p'),'rb') as f:
+            self.ingr_dic = pickle.load(f)
+        with open(os.path.join(data_path,'recipe_class.p'),'rb') as f:
+            self.recipe_class = pickle.load(f)
+
+        if sem_reg is not None:
+            self.semantic_reg = sem_reg
         else:
-	    self.semantic_reg = False
+            self.semantic_reg = False
 
         self.transform = transform
         self.target_transform = target_transform
         self.loader = loader
 
     def __getitem__(self, index):
-        recipId  = self.ids[index]
-	# we force 80 percent of them to be a mismatch
+        recipeId  = self.ids[index]
+        # we force 10 percent of them to be a mismatch
         if self.partition=='train':
-	    match = np.random.uniform() > self.mismtch
+            match = np.random.uniform() > self.mismtch
         elif self.partition=='val' or self.partition=='test':
             match = True 
         else:
-            raise 'Partition name not well defined'
+            raise Exception('Partition name not well defined')
 
-	target = match and 1 or -1
-
-        with self.env.begin(write=False) as txn:
-            serialized_sample = txn.get(self.ids[index])
-        sample = pickle.loads(serialized_sample)
-        imgs = sample['imgs']
+        target = match and 1 or -1
 
         # image
-	if target==1:
-            if self.partition=='train':
-                # We do only use the first five images per recipe during training
-                imgIdx = np.random.choice(range(min(5,len(imgs))))
-            else:
-                imgIdx = 0 
+        if target==1:
+                path = self.imgPath + recipeId + '.jpg'
 
-            path = self.imgPath + imgs[imgIdx]['id'] 
-	else:
-            # we randomly pick one non-matching image
-            all_idx = range(len(self.ids))
-            rndindex = np.random.choice(all_idx) 
-            while rndindex == index:
-                rndindex = np.random.choice(all_idx) # pick a random index
+        else:
+                # we randomly pick one non-matching image
+                all_idx = range(len(self.ids))
+                rndindex = np.random.choice(all_idx)
+                while rndindex == index:
+                    rndindex = np.random.choice(all_idx) # pick a random index
 
-            with self.env.begin(write=False) as txn:
-                serialized_sample = txn.get(self.ids[rndindex])
-
-            rndsample = pickle.loads(serialized_sample)
-            rndimgs = rndsample['imgs']
-
-            if self.partition=='train': # if training we pick a random image
-                # We do only use the first five images per recipe during training
-                imgIdx = np.random.choice(range(min(5,len(rndimgs))))
-            else:
-                imgIdx = 0
-
-            path = self.imgPath + rndimgs[imgIdx]['id'] 
-
-        # instructions
-        instrs = sample['intrs']
-        itr_ln = len(instrs)
-        t_inst = np.zeros((self.maxInst, np.shape(instrs)[1]),dtype=np.float32)
-        t_inst[:itr_ln][:] = instrs
-        instrs = torch.FloatTensor(t_inst)
+                rndId = self.ids[rndindex]
+                path = self.imgPath + rndId + '.jpg'
 
         # ingredients
-        ingrs  = sample['ingrs'].astype(int)
-        ingrs  = torch.LongTensor(ingrs) 
-        igr_ln = max(np.nonzero(sample['ingrs'])[0]) + 1
+        ingrs = []
+        for item in self.ingr_dic[recipeId]['ingr']:
+            ingrs.append(self.ingr_id[item])
+        igr_ln = len(ingrs)
+        ingrs = torch.LongTensor(ingrs)
 
         # load image
         img = self.loader( path )
@@ -115,27 +94,26 @@ class ImagerLoader(data.Dataset):
         if self.target_transform is not None:
             target = self.target_transform(target)
 
-        rec_class = sample['classes'] - 1
-        rec_id = self.ids[index]
+        rec_class = self.recipe_class[self.ingr_dic[recipeId]['dish']]
 
         if target == -1:
-            img_class = rndsample['classes'] - 1
-            img_id = self.ids[rndindex]
+            img_class = self.recipe_class[self.ingr_dic[rndId]['dish']]
+            img_id = rndId
         else:
-            img_class = sample['classes'] - 1
-            img_id = self.ids[index]
+            img_class = self.recipe_class[self.ingr_dic[recipeId]['dish']]
+            img_id = recipeId
 
         # output
         if self.partition=='train':
             if self.semantic_reg:
-                return [img, instrs, itr_ln, ingrs, igr_ln], [target, img_class, rec_class]
+                return [img, ingrs, igr_ln], [target, img_class, rec_class]
             else:
-                return [img, instrs, itr_ln, ingrs, igr_ln], [target]
+                return [img, ingrs, igr_ln], [target]
         else:
             if self.semantic_reg:
-                return [img, instrs, itr_ln, ingrs, igr_ln], [target, img_class, rec_class, img_id, rec_id]
+                return [img, ingrs, igr_ln], [target, img_class, rec_class, img_id, recipeId]
             else:
-                return [img, instrs, itr_ln, ingrs, igr_ln], [target, img_id, rec_id]               
+                return [img, ingrs, igr_ln], [target, img_id, recipeId]
 
     def __len__(self):
-	return len(self.ids)
+        return len(self.ids)

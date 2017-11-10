@@ -22,9 +22,10 @@ opts = parser.parse_args()
 
 def main():
 
+    gpus = ','.join(map(str,opts.gpu))
+    os.environ["CUDA_VISIBLE_DEVICES"] = gpus
     model = im2recipe()
-    model.visionMLP = torch.nn.DataParallel(model.visionMLP, device_ids=[0,1,2,3])
-    # model.visionMLP = torch.nn.DataParallel(model.visionMLP, device_ids=[0,1])
+    model.visionMLP = torch.nn.DataParallel(model.visionMLP, device_ids=range(len(opts.gpu)))
     model.cuda()
 
     # define loss function (criterion) and optimizer
@@ -70,9 +71,9 @@ def main():
     # models are save only when their loss obtains the best value in the validation
     valtrack = 0
 
-    print 'There are %d parameter groups' % len(optimizer.param_groups)
-    print 'Initial base params lr: %f' % optimizer.param_groups[0]['lr']
-    print 'Initial vision params lr: %f' % optimizer.param_groups[1]['lr']
+    print('There are %d parameter groups' % len(optimizer.param_groups))
+    print('Initial base params lr: %f' % optimizer.param_groups[0]['lr'])
+    print('Initial vision params lr: %f' % optimizer.param_groups[1]['lr'])
 
     # data preparation, loaders
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
@@ -80,7 +81,7 @@ def main():
     
     cudnn.benchmark = True
 
-    # preparing the training laoder
+    # preparing the training loader
     train_loader = torch.utils.data.DataLoader(
         ImagerLoader(opts.img_path,
             transforms.Compose([
@@ -93,7 +94,7 @@ def main():
         ]),data_path=opts.data_path,partition='train',sem_reg=opts.semantic_reg),
         batch_size=opts.batch_size, shuffle=True,
         num_workers=opts.workers, pin_memory=True)
-    print 'Training loader prepared.'
+    print('Training loader prepared.')
 
     # preparing validation loader 
     val_loader = torch.utils.data.DataLoader(
@@ -106,7 +107,7 @@ def main():
         ]),data_path=opts.data_path,sem_reg=opts.semantic_reg,partition='val'),
         batch_size=opts.batch_size, shuffle=False,
         num_workers=opts.workers, pin_memory=True)
-    print 'Validation loader prepared.'
+    print('Validation loader prepared.')
 
     # run epochs
     for epoch in range(opts.start_epoch, opts.epochs):
@@ -143,7 +144,7 @@ def main():
                 'curr_val': val_loss,
             }, is_best)
 
-            print '** Validation: %f (best) - %d (valtrack)' % (best_val, valtrack)
+            print('** Validation: %f (best) - %d (valtrack)' % (best_val, valtrack))
 
 def train(train_loader, model, criterion, optimizer, epoch):
     batch_time = AverageMeter()
@@ -174,7 +175,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
             target_var.append(torch.autograd.Variable(target[j]))
 
         # compute output
-        output = model(input_var[0], input_var[1], input_var[2], input_var[3], input_var[4])
+        output = model(input_var[0], input_var[1], input_var[2])
 
         # compute loss
         if opts.semantic_reg:
@@ -241,7 +242,7 @@ def validate(val_loader, model, criterion):
             target_var.append(torch.autograd.Variable(target[j], volatile=True))
 
         # compute output
-        output = model(input_var[0],input_var[1], input_var[2], input_var[3], input_var[4])
+        output = model(input_var[0],input_var[1], input_var[2])
         
         if i==0:
             data0 = output[0].data.cpu().numpy()
@@ -279,7 +280,7 @@ def rank(opts, img_embeds, rec_embeds, rec_ids):
     glob_recall = {1:0.0,5:0.0,10:0.0}
     for i in range(10):
 
-        ids = random.sample(xrange(0,len(names)), N)
+        ids = random.sample(range(0,len(names)), N)
         im_sub = im_vecs[ids,:]
         instr_sub = instr_vecs[ids,:]
         ids_sub = names[ids]
@@ -362,8 +363,8 @@ def adjust_learning_rate(optimizer, epoch, opts):
     # parameters corresponding to visionMLP 
     optimizer.param_groups[1]['lr'] = opts.lr * opts.freeVision 
 
-    print 'Initial base params lr: %f' % optimizer.param_groups[0]['lr']
-    print 'Initial vision lr: %f' % optimizer.param_groups[1]['lr']
+    print('Initial base params lr: %f' % optimizer.param_groups[0]['lr'])
+    print('Initial vision lr: %f' % optimizer.param_groups[1]['lr'])
 
     # after first modality change we set patience to 3
     opts.patience = 3

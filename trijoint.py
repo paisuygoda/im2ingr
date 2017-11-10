@@ -33,7 +33,7 @@ class stRNN(nn.Module):
         self.lstm = nn.LSTM(input_size=opts.stDim, hidden_size=opts.srnnDim, bidirectional=False, batch_first=True)
                 
     def forward(self, x, sq_lengths):
-        # here we use a previous LSTM to get the representation of each instruction 
+        # here we use a previous LSTM to get the representation of each instruction
         # sort sequence according to the length
         sorted_len, sorted_idx = sq_lengths.sort(0, descending=True)
         index_sorted_idx = sorted_idx\
@@ -69,7 +69,7 @@ class ingRNN(nn.Module):
     def forward(self, x, sq_lengths):
 
         # we get the w2v for each element of the ingredient sequence
-        x = self.embs(x) 
+        x = self.embs(x)
 
         # sort sequence according to the length
         sorted_len, sorted_idx = sq_lengths.sort(0, descending=True)
@@ -94,7 +94,7 @@ class ingRNN(nn.Module):
 
         return output
 
-# Im2recipe model
+# Original Im2recipe model
 class im2recipe(nn.Module):
     def __init__(self):
         super(im2recipe, self).__init__()
@@ -146,4 +146,52 @@ class im2recipe(nn.Module):
             output = [visual_emb, recipe_emb] 
         return output 
 
+# Tweaked im2recipe model for ingredient retrieval
+class im2ingr(nn.Module):
+    def __init__(self):
+        super(im2ingr, self).__init__()
+        if opts.preModel == 'resNet50':
 
+            resnet = models.resnet50(pretrained=True)
+            modules = list(resnet.children())[:-1]  # we do not use the last fc layer.
+            self.visionMLP = nn.Sequential(*modules)
+
+            self.visual_embedding = nn.Sequential(
+                nn.Linear(opts.imfeatDim, opts.embDim),
+                nn.Tanh(),
+            )
+
+            self.recipe_embedding = nn.Sequential(
+                nn.Linear(opts.irnnDim * 2, opts.embDim),
+                nn.Tanh(),
+            )
+
+        else:
+            raise Exception('Only resNet50 model is implemented.')
+
+        self.ingRNN_ = ingRNN()
+        self.table = TableModule()
+
+        if opts.semantic_reg:
+            self.semantic_branch = nn.Linear(opts.embDim, opts.numClasses)
+
+    def forward(self, x, z1, z2):  # we need to check how the input is going to be provided to the model
+        # recipe embedding
+        recipe_emb = self.recipe_embedding(self.ingRNN_(z1, z2))
+        recipe_emb = norm(recipe_emb)
+
+        # visual embedding
+        visual_emb = self.visionMLP(x)
+        visual_emb = visual_emb.view(visual_emb.size(0), -1)
+        visual_emb = self.visual_embedding(visual_emb)
+        visual_emb = norm(visual_emb)
+
+        if opts.semantic_reg:
+            visual_sem = self.semantic_branch(visual_emb)
+            recipe_sem = self.semantic_branch(recipe_emb)
+            # final output
+            output = [visual_emb, recipe_emb, visual_sem, recipe_sem]
+        else:
+            # final output
+            output = [visual_emb, recipe_emb]
+        return output

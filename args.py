@@ -1,11 +1,13 @@
 import argparse
 
+
 def get_parser():
 
     parser = argparse.ArgumentParser(description='tri-joint parameters')
     # general
     parser.add_argument('--seed', default=1234, type=int)
-    parser.add_argument('--cuda', default=True,type=bool)
+    parser.add_argument('--cuda', default=True, type=bool)
+    parser.add_argument('-g', '--gpu', default=0, nargs='+', type=int)
 
     # data
     parser.add_argument('--img_path', default='data/images/')
@@ -58,7 +60,7 @@ def get_parser():
 
     # dataset
     parser.add_argument('--maxlen', default=20, type=int)
-    parser.add_argument('--vocab', default = 'vocab.txt', type=str)
+    parser.add_argument('--vocab', default = 'data/vocab.txt', type=str)
     parser.add_argument('--dataset', default = 'data/recipe1M/', type=str)
     parser.add_argument('--sthdir', default = '../../data/', type=str)
 

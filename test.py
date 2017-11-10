@@ -1,4 +1,5 @@
 import time
+import os
 import torch
 import torch.nn as nn
 import torch.nn.parallel
@@ -26,9 +27,11 @@ if opts.cuda:
 np.random.seed(opts.seed)
 
 def main():
-   
+
+    gpus = ','.join(opts.gpu)
+    os.environ["CUDA_VISIBLE_DEVICES"] = gpus
     model = im2recipe()
-    model.visionMLP = torch.nn.DataParallel(model.visionMLP, device_ids=[0,1,2,3])
+    model.visionMLP = torch.nn.DataParallel(model.visionMLP, device_ids=range(len(opts.gpu)))
     # model.visionMLP = torch.nn.DataParallel(model.visionMLP, device_ids=[0,1])
     model.cuda()
 
@@ -95,7 +98,7 @@ def test(test_loader, model, criterion):
             target_var.append(torch.autograd.Variable(target[j], volatile=True))
 
         # compute output
-        output = model(input_var[0],input_var[1], input_var[2], input_var[3], input_var[4])
+        output = model(input_var[0],input_var[1], input_var[2])
    
         # compute loss
         if opts.semantic_reg:
