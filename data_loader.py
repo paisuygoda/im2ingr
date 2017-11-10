@@ -5,6 +5,7 @@ import pickle
 import numpy as np
 import lmdb
 import torch
+import torchwordemb
 
 def default_loader(path):
     try:
@@ -17,8 +18,8 @@ def default_loader(path):
 
 class ImagerLoader(data.Dataset):
     def __init__(self, img_path, transform=None, target_transform=None,
-                 loader=default_loader,square=False,data_path=None,partition=None,sem_reg=None):
-        ingr_id, _ = torchwordemb.load_word2vec_bin(opts.ingrW2V)
+                 loader=default_loader,square=False,data_path=None,partition=None,sem_reg=None,ingrW2V=None):
+        ingr_id, _ = torchwordemb.load_word2vec_bin(ingrW2V)
         self.ingr_id = ingr_id
 
         if data_path==None:
