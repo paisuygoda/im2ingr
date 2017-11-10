@@ -1,3 +1,10 @@
+# im2ingr: Retrieving Ingredients from Food Images
+
+This repository was first copied from im2recipe (https://github.com/torralba-lab/im2recipe-Pytorch)
+My goal is different from that of im2recipe so I didn't actually forked this,
+but at this moment a little tweak has done and most of codes are not mine
+so I will leave the original readme below.
+
 # im2recipe: Learning Cross-modal Embeddings for Cooking Recipes and Food Images
 
 This repository contains the code to train and evaluate models from the paper:  
