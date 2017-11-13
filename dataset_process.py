@@ -119,7 +119,8 @@ def data_dict():
 def class_id_set():
 
     recipe_class = {}
-    recipe_id = 0
+    recipe_id = 1
+    id2text = []
     for line in open('data/Rakuten/recipe01_all_20170118.txt', 'r', encoding="utf-8"):
         linelist = line.split('\t')
         dish = linelist[9]
@@ -129,5 +130,8 @@ def class_id_set():
 
     with open('data/recipe_class.p', mode='wb') as f:
         pickle.dump(recipe_class, f)
+
+    with open('data/recipe_id2recipe_text.p', mode='wb') as f:
+        pickle.dump(id2text, f)
 
 class_id_set()

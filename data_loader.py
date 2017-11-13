@@ -15,6 +15,16 @@ def default_loader(path):
         # print path
         return Image.new('RGB', (224,224), 'white')
 
+def resize(img):
+    w,h = img.size
+    if w<h:
+        ratio = float(h)/float(w)
+        img = img.resize((256,int(256*ratio)))
+    else:
+        ratio = float(w)/float(h)
+        img = img.resize((int(256*ratio),256))
+
+    return img
 
 class ImagerLoader(data.Dataset):
     def __init__(self, img_path, transform=None, target_transform=None,
@@ -53,7 +63,7 @@ class ImagerLoader(data.Dataset):
         self.loader = loader
 
     def __getitem__(self, index):
-        recipeId  = self.ids[index]
+        recipeId  = self.ids[index][:-4]
         # we force 10 percent of them to be a mismatch
         if self.partition=='train':
             match = np.random.uniform() > self.mismtch
@@ -75,14 +85,19 @@ class ImagerLoader(data.Dataset):
                 while rndindex == index:
                     rndindex = np.random.choice(all_idx) # pick a random index
 
-                rndId = self.ids[rndindex]
+                rndId = self.ids[rndindex][:-4]
                 path = self.imgPath + rndId + '.jpg'
 
         # ingredients
         ingrs = []
         for item in self.ingr_dic[recipeId]['ingr']:
-            ingrs.append(self.ingr_id[item])
+            if item in self.ingr_id:
+                ingrs.append(self.ingr_id[item])
+            else:
+                ingrs.append(0)
         igr_ln = len(ingrs)
+        if len(ingrs) < 50:
+            ingrs.append([0]*(50-len(ingrs)))
         ingrs = torch.LongTensor(ingrs)
 
         # load image
@@ -94,6 +109,8 @@ class ImagerLoader(data.Dataset):
             img = self.transform(img)
         if self.target_transform is not None:
             target = self.target_transform(target)
+
+        print(img.size)
 
         rec_class = self.recipe_class[self.ingr_dic[recipeId]['dish']]
 

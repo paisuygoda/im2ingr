@@ -4,6 +4,8 @@ import pickle
 import os
 from numpy import random
 from PIL import Image
+import sys
+import torchwordemb
 
 def calc_f(tp,fp,fn):
     precision = tp/(tp*fp)
@@ -33,6 +35,7 @@ def look_lmdb(path):
             break
 """
 
+
 def look_pickle(path):
     with open(path, 'rb') as f:
         file = pickle.load(f)
@@ -43,7 +46,12 @@ def look_pickle(path):
             if key > 10:
                 break
     elif type(file) is dict:
-        print(file)
+        print("key?")
+        s = input()
+        if s in file:
+            print(file[s])
+        else:
+            print(file)
     else:
         print(type(file))
 
@@ -100,7 +108,34 @@ def look_image(path):
     pic = Image.open(path)
     pic.show()
 
-print("MODE? (1 = json, 2 = image, 3 = pickle, 4 = text, 5 = img separation)")
+
+def ingr_max():
+    count = 0
+    max_ingr = 0
+    recipeid = 0
+    for line in open('data/Rakuten/recipe02_material_20160112.txt', 'r', encoding="utf-8"):
+        count += 1.0
+        proceeding = count / 5274990.0 * 100.0
+        sys.stdout.write("\r%f%%" % proceeding)
+        linelist = line.split()
+        if recipeid == 0:
+            recipeid = linelist[0]
+            ingrlist = 0
+        elif not linelist[0] == recipeid:
+            if ingrlist > max_ingr:
+                max_ingr = ingrlist
+            recipeid = linelist[0]
+            ingrlist = 0
+        ingrlist += 1
+
+    print("max ingr = ", max_ingr)
+
+
+def look_bin():
+    name, vec = torchwordemb.load_word2vec_bin("data/vocab.bin")
+    print(name['*'])
+
+print("MODE? (1 = json, 2 = image, 3 = pickle, 4 = text, 5 = img separation, \n\t6 = recipe_ingr, 7 = bin)")
 m = input()
 print("PATH?")
 path = input()
@@ -116,5 +151,9 @@ elif m == '4':
     look_txt("data/vocab.txt")
 elif m == '5':
     img_sep("data/images/")
+elif m == '6':
+    ingr_max()
+elif m == '7':
+    look_bin()
 else:
     print("Bad input mode")

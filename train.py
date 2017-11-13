@@ -13,7 +13,7 @@ import torchvision.models as models
 import torch.backends.cudnn as cudnn
 from data_loader import ImagerLoader 
 from args import get_parser
-from trijoint import im2recipe
+from trijoint import im2ingr
 
 # =============================================================================
 parser = get_parser()
@@ -24,7 +24,7 @@ def main():
 
     gpus = ','.join(map(str,opts.gpu))
     os.environ["CUDA_VISIBLE_DEVICES"] = gpus
-    model = im2recipe()
+    model = im2ingr()
     model.visionMLP = torch.nn.DataParallel(model.visionMLP, device_ids=range(len(opts.gpu)))
     model.cuda()
 
