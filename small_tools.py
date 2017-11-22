@@ -48,12 +48,13 @@ def look_pickle(path):
     elif type(file) is dict:
         print("key?")
         s = input()
+        print(type(s))
         if s in file:
             print(file[s])
         else:
             print(file)
     else:
-        print(type(file))
+        print(file)
 
 
 def look_txt(path):

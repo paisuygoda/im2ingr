@@ -51,7 +51,7 @@ def get_parser():
 
     # test
     parser.add_argument('--path_results', default='results/', type=str)
-    parser.add_argument('--model_path', default='snapshots/model_e660_v383.150.pth.tar', type=str)
+    parser.add_argument('--model_path', default='snapshots/model_e660_v-383.150.pth.tar', type=str)
     
 
     # MedR / Recall@1 / Recall@5 / Recall@10

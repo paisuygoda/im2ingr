@@ -11,7 +11,7 @@ import torchvision.models as models
 import torch.backends.cudnn as cudnn
 from data_loader import ImagerLoader # our data_loader
 import numpy as np
-from trijoint import im2recipe
+from trijoint import im2ingr
 import pickle
 from args import get_parser
 
@@ -31,7 +31,7 @@ def main():
 
     gpus = ','.join(map(str, opts.gpu))
     os.environ["CUDA_VISIBLE_DEVICES"] = gpus
-    model = im2recipe()
+    model = im2ingr()
     model.visionMLP = torch.nn.DataParallel(model.visionMLP, device_ids=range(len(opts.gpu)))
     # model.visionMLP = torch.nn.DataParallel(model.visionMLP, device_ids=[0,1])
     model.cuda()
@@ -70,7 +70,7 @@ def main():
             transforms.CenterCrop(224), # we get only the center of that rescaled
             transforms.ToTensor(),
             normalize,
-        ]),data_path=opts.data_path,sem_reg=opts.semantic_reg,partition='test'),
+        ]),data_path=opts.data_path,sem_reg=opts.semantic_reg,partition='test',ingrW2V=opts.ingrW2V),
         batch_size=opts.batch_size, shuffle=False,
         num_workers=opts.workers, pin_memory=True)
     print('Test loader prepared.')

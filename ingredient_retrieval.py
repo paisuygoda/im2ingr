@@ -3,36 +3,25 @@ import json
 import numpy as np
 import sys
 
-with open("data/det_ingrs.json", 'r') as f:
-    ingr_list = json.load(f)
-with open("results/img_embeds.pkl", 'r') as f:
+with open("data/ingredients_dict.p", 'rb') as f:
+    ingr_dic = pickle.load(f)
+with open("results/img_embeds.pkl", 'rb') as f:
     img_embeds = pickle.load(f)
-with open("results/img_ids.pkl", 'r') as f:
+with open("results/img_ids.pkl", 'rb') as f:
     img_ids = pickle.load(f)
-with open("results/rec_embeds.pkl", 'r') as f:
+with open("results/rec_embeds.pkl", 'rb') as f:
     rec_embeds = pickle.load(f)
-with open("results/rec_ids.pkl", 'r') as f:
+with open("results/rec_ids.pkl", 'rb') as f:
     rec_ids = pickle.load(f)
-
-ingr_dic = {}
-num = float(len(ingr_list))
-for i, recipe in enumerate(ingr_list):
-    proceeding = float(i) / num * 100 * 0.5
-    sys.stdout.write("\r%f" % proceeding)
-    sys.stdout.flush()
-    ings = []
-    for item in recipe['ingredients']:
-        ings.append(item['text'])
-    ingr_dic[recipe['id']] = ings
 
 tp = 0
 fp = 0
 fn = 0
 for qid, query_emb in enumerate(img_embeds):
-    proceeding = float(qid) * 0.5 + 50.0
-    sys.stdout.write("\r%f" % proceeding)
+    proceeding = qid
+    sys.stdout.write("\r%d" % proceeding)
     sys.stdout.flush()
-    if proceeding == 100:
+    if proceeding >= 1000:
         break
     min = 9999.0
     id = -1
@@ -44,11 +33,11 @@ for qid, query_emb in enumerate(img_embeds):
     if id == -1:
         print("all embeds are too far!")
         exit(1)
-    query_id = img_ids[qid]
-    result_id = rec_ids[id]
+    query_id = str(img_ids[qid])
+    result_id = str(rec_ids[id])
 
-    query = ingr_dic[query_id]
-    result = ingr_dic[result_id]
+    query = ingr_dic[query_id]['ingr']
+    result = ingr_dic[result_id]['ingr']
 
     TP = []
     for item in query:
@@ -56,8 +45,8 @@ for qid, query_emb in enumerate(img_embeds):
             TP.append(item)
 
     tp += len(TP)
-    fp += len(result) - tp
-    fn += len(query) - tp
+    fp += len(result) - len(TP)
+    fn += len(query) - len(TP)
 
 precision = float(tp)/float(tp+fp)
 recall = float(tp)/float(tp+fn)
