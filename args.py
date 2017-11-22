@@ -29,7 +29,7 @@ def get_parser():
     parser.add_argument('--maxSeqlen', default=20, type=int)
     parser.add_argument('--maxIngrs', default=20, type=int)
     parser.add_argument('--maxImgs', default=5, type=int)
-    parser.add_argument('--numClasses', default=1048, type=int)
+    parser.add_argument('--numClasses', default=262813, type=int)
     parser.add_argument('--preModel', default='resNet50',type=str)
     parser.add_argument('--semantic_reg', default=True,type=bool)
     # parser.add_argument('--semantic_reg', default=False,type=bool)
@@ -51,7 +51,7 @@ def get_parser():
 
     # test
     parser.add_argument('--path_results', default='results/', type=str)
-    parser.add_argument('--model_path', default='snapshots/model_e220_v-4.700.pth.tar', type=str)    
+    parser.add_argument('--model_path', default='snapshots/model_e660_v383.150.pth.tar', type=str)
     
 
     # MedR / Recall@1 / Recall@5 / Recall@10

@@ -127,7 +127,7 @@ def class_id_set():
         if dish not in recipe_class:
             recipe_class[dish] = recipe_id
             recipe_id += 1
-
+    print(recipe_id)
     with open('data/recipe_class.p', mode='wb') as f:
         pickle.dump(recipe_class, f)
 

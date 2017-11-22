@@ -72,7 +72,7 @@ def main():
         ]),data_path=opts.data_path,sem_reg=opts.semantic_reg,partition='test'),
         batch_size=opts.batch_size, shuffle=False,
         num_workers=opts.workers, pin_memory=True)
-    print 'Test loader prepared.'
+    print('Test loader prepared.')
 
     # run test
     test(test_loader, model, criterion)

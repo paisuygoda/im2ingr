@@ -176,6 +176,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
         # compute output
         output = model(input_var[0], input_var[1], input_var[2])
+        output = model(input_var[0], input_var[1], input_var[2])
 
         # compute loss
         if opts.semantic_reg:
@@ -188,9 +189,9 @@ def train(train_loader, model, criterion, optimizer, epoch):
                     opts.cls_weight * rec_loss 
 
             # measure performance and record losses
-            cos_losses.update(cos_loss.data[0], input[0].size(0))
-            img_losses.update(img_loss.data[0], input[0].size(0))
-            rec_losses.update(rec_loss.data[0], input[0].size(0))
+            cos_losses.update(cos_loss.data, input[0].size(0))
+            img_losses.update(img_loss.data, input[0].size(0))
+            rec_losses.update(rec_loss.data, input[0].size(0))
         else:
             loss = criterion(output[0], output[1], target_var[0])
             # measure performance and record loss

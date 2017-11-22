@@ -5,7 +5,7 @@ import os
 from numpy import random
 from PIL import Image
 import sys
-import torchwordemb
+# import torchwordemb
 
 def calc_f(tp,fp,fn):
     precision = tp/(tp*fp)
@@ -130,11 +130,11 @@ def ingr_max():
 
     print("max ingr = ", max_ingr)
 
-
+"""
 def look_bin():
     name, vec = torchwordemb.load_word2vec_bin("data/vocab.bin")
     print(name['*'])
-
+"""
 print("MODE? (1 = json, 2 = image, 3 = pickle, 4 = text, 5 = img separation, \n\t6 = recipe_ingr, 7 = bin)")
 m = input()
 print("PATH?")

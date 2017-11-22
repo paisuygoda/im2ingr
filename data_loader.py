@@ -46,7 +46,7 @@ class ImagerLoader(data.Dataset):
         self.square  = square
 
         self.imgPath = img_path
-        self.mismtch = 0.1
+        self.mismtch = 0.8
         self.maxInst = 20
         with open(os.path.join(data_path,'ingredients_dict.p'),'rb') as f:
             self.ingr_dic = pickle.load(f)
@@ -64,7 +64,7 @@ class ImagerLoader(data.Dataset):
 
     def __getitem__(self, index):
         recipeId  = self.ids[index][:-4]
-        # we force 10 percent of them to be a mismatch
+        # we force 80 percent of them to be a mismatch
         if self.partition=='train':
             match = np.random.uniform() > self.mismtch
         elif self.partition=='val' or self.partition=='test':
@@ -75,29 +75,33 @@ class ImagerLoader(data.Dataset):
         target = match and 1 or -1
 
         # image
+        all_idx = range(len(self.ids))
+        rndindex = np.random.choice(all_idx)
+        while rndindex == index:
+            rndindex = np.random.choice(all_idx)  # pick a random index
+        rndId = self.ids[rndindex][:-4]
+
         if target==1:
                 path = self.imgPath + recipeId + '.jpg'
 
         else:
                 # we randomly pick one non-matching image
-                all_idx = range(len(self.ids))
-                rndindex = np.random.choice(all_idx)
-                while rndindex == index:
-                    rndindex = np.random.choice(all_idx) # pick a random index
-
-                rndId = self.ids[rndindex][:-4]
                 path = self.imgPath + rndId + '.jpg'
 
         # ingredients
         ingrs = []
-        for item in self.ingr_dic[recipeId]['ingr']:
+        try:
+            l = self.ingr_dic[recipeId]['ingr']
+        except:
+            l = ["*"]
+        for item in l:
             if item in self.ingr_id:
                 ingrs.append(self.ingr_id[item])
             else:
                 ingrs.append(0)
         igr_ln = len(ingrs)
         if len(ingrs) < 50:
-            ingrs.append([0]*(50-len(ingrs)))
+            ingrs = ingrs+[0]*(50-len(ingrs))
         ingrs = torch.LongTensor(ingrs)
 
         # load image
