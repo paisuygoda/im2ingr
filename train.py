@@ -207,10 +207,12 @@ def train(train_loader, model, criterion, optimizer, epoch):
         end = time.time()
 
     if opts.semantic_reg:
+        print(optimizer.param_groups[1]['lr'])
+        print(optimizer.param_groups[0]['lr'])
         print('Epoch: {0}\t'
-                  'cos loss {cos_loss.val:.4f} ({cos_loss.avg:.4f})\t'
-                  'img Loss {img_loss.val:.4f} ({img_loss.avg:.4f})\t'
-                  'rec loss {rec_loss.val:.4f} ({rec_loss.avg:.4f})\t'
+                  'cos loss {cos_loss.val[0]:.4f} ({cos_loss.avg[0]:.4f})\t'
+                  'img Loss {img_loss.val[0]:.4f} ({img_loss.avg[0]:.4f})\t'
+                  'rec loss {rec_loss.val[0]:.4f} ({rec_loss.avg[0]:.4f})\t'
                   'vision ({visionLR}) - recipe ({recipeLR})\t'.format(
                    epoch, cos_loss=cos_losses, img_loss=img_losses,
                    rec_loss=rec_losses, visionLR=optimizer.param_groups[1]['lr'],

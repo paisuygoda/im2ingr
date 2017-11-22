@@ -26,9 +26,10 @@ if opts.cuda:
 
 np.random.seed(opts.seed)
 
+
 def main():
 
-    gpus = ','.join(opts.gpu)
+    gpus = ','.join(map(str, opts.gpu))
     os.environ["CUDA_VISIBLE_DEVICES"] = gpus
     model = im2recipe()
     model.visionMLP = torch.nn.DataParallel(model.visionMLP, device_ids=range(len(opts.gpu)))
