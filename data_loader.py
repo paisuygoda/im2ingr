@@ -114,8 +114,6 @@ class ImagerLoader(data.Dataset):
         if self.target_transform is not None:
             target = self.target_transform(target)
 
-        print(img.size)
-
         rec_class = self.recipe_class[self.ingr_dic[recipeId]['dish']]
 
         if target == -1:
