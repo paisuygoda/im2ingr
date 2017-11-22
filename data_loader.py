@@ -94,6 +94,7 @@ class ImagerLoader(data.Dataset):
             l = self.ingr_dic[recipeId]['ingr']
         except:
             l = ["*"]
+            target = -1
         for item in l:
             if item in self.ingr_id:
                 ingrs.append(self.ingr_id[item])
