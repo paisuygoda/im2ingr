@@ -14,6 +14,7 @@ import torchvision.transforms as transforms
 import torchvision.models as models
 import torchwordemb
 from args import get_parser
+from trijoint import norm
 
 
 class ingr_mult(nn.Module):
@@ -40,16 +41,16 @@ class ingr_mult(nn.Module):
 
         y = self.visionMLP(x)
         y = y.view(y.size(0), -1)
-        y = self.final_fc(y)
-        y = norm(y)
+        y_label = self.final_fc(y)
+        y_label = norm(y_label)
 
         if opts.semantic_reg:
             sem_class = self.semantic_branch(y)
             # final output
-            output = [y, sem_class]
+            output = [y_label, sem_class]
         else:
             # final output
-            output = [y]
+            output = [y_label]
         return output
 
 
@@ -169,18 +170,20 @@ def train(train_loader, model, criterion, optimizer, epoch):
         input_img = torch.autograd.Variable(input[0]).cuda()
 
         target_labels = np.zeros(opts.numIngrs)
-        for item in input[1]:
+        for item in input[1][0].long():
             target_labels[item] = 1
         target_labels[0] = 0
-        target_var = torch.autograd.Variable(target_labels)
+        target_var = torch.autograd.Variable(torch.Tensor(target_labels))
+        target_target = torch.autograd.Variable(target[0])
 
         # compute output
         output = model(input_img)
 
+        target_target = torch.autograd.Variable(target[0])
         # compute loss
         if opts.semantic_reg:
             target_cls = torch.autograd.Variable(target[1])
-            cos_loss = criterion[0](output[0], target_var)
+            cos_loss = criterion[0](output[0], target_var, target_target)
             cls_loss = criterion[1](output[1], target_cls)
             # combined loss
             loss = opts.cos_weight * cos_loss + opts.cls_weight * cls_loss
@@ -189,7 +192,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
             cos_losses.update(cos_loss.data, input[0].size(0))
             cls_losses.update(cls_loss.data, input[0].size(0))
         else:
-            loss = criterion(output[0], target_var)
+            loss = criterion(output[0], target_var, target_target)
             # measure performance and record loss
             cos_losses.update(loss.data[0], input[0].size(0))
 
@@ -238,10 +241,11 @@ def validate(val_loader, model, criterion):
         # compute output
         output = model(input_img)
 
+        target_target = torch.autograd.Variable(target[0])
         # compute loss
         if opts.semantic_reg:
             target_cls = torch.autograd.Variable(target[1])
-            cos_loss = criterion[0](output[0], target_var)
+            cos_loss = criterion[0](output[0], target_var, target_target)
             cls_loss = criterion[1](output[1], target_cls)
             # combined loss
             loss = opts.cos_weight * cos_loss + opts.cls_weight * cls_loss
@@ -252,7 +256,7 @@ def validate(val_loader, model, criterion):
             losses.update(loss.data, input[0].size(0))
 
         else:
-            loss = criterion(output[0], target_var)
+            loss = criterion(output[0], target_var, target_target)
             # measure performance and record loss
             losses.update(loss.data[0], input[0].size(0))
 
