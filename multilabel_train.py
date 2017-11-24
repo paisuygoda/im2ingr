@@ -171,19 +171,22 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
         target_labels = np.zeros(opts.numIngrs)
         for item in input[1][0].long():
-            target_labels[item] = 1
+            target_labels[item] = 1.0
         target_labels[0] = 0
-        target_var = torch.autograd.Variable(torch.Tensor(target_labels))
-        target_target = torch.autograd.Variable(target[0])
+        ans_label = torch.autograd.Variable(torch.Tensor(target_labels))
 
         # compute output
         output = model(input_img)
 
-        target_target = torch.autograd.Variable(target[0])
+        target_var = list()
+        for j in range(len(target)):
+            target[j] = target[j].cuda(async=True)
+            target_var.append(torch.autograd.Variable(target[j]))
+
         # compute loss
         if opts.semantic_reg:
             target_cls = torch.autograd.Variable(target[1])
-            cos_loss = criterion[0](output[0], target_var, target_target)
+            cos_loss = criterion[0](output[0], ans_label, target_var[0])
             cls_loss = criterion[1](output[1], target_cls)
             # combined loss
             loss = opts.cos_weight * cos_loss + opts.cls_weight * cls_loss
@@ -192,7 +195,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
             cos_losses.update(cos_loss.data, input[0].size(0))
             cls_losses.update(cls_loss.data, input[0].size(0))
         else:
-            loss = criterion(output[0], target_var, target_target)
+            loss = criterion(output[0], ans_label, target_var[0])
             # measure performance and record loss
             cos_losses.update(loss.data[0], input[0].size(0))
 
@@ -236,16 +239,20 @@ def validate(val_loader, model, criterion):
         for item in input[1]:
             target_labels[item] = 1
         target_labels[0] = 0
-        target_var = torch.autograd.Variable(target_labels)
+        ans_label = torch.autograd.Variable(torch.Tensor(target_labels))
 
         # compute output
         output = model(input_img)
 
-        target_target = torch.autograd.Variable(target[0])
+        target_var = list()
+        for j in range(len(target)):
+            target[j] = target[j].cuda(async=True)
+            target_var.append(torch.autograd.Variable(target[j]))
+
         # compute loss
         if opts.semantic_reg:
             target_cls = torch.autograd.Variable(target[1])
-            cos_loss = criterion[0](output[0], target_var, target_target)
+            cos_loss = criterion[0](output[0], ans_label, target_var[0])
             cls_loss = criterion[1](output[1], target_cls)
             # combined loss
             loss = opts.cos_weight * cos_loss + opts.cls_weight * cls_loss
@@ -256,7 +263,7 @@ def validate(val_loader, model, criterion):
             losses.update(loss.data, input[0].size(0))
 
         else:
-            loss = criterion(output[0], target_var, target_target)
+            loss = criterion(output[0], ans_label, target_var[0])
             # measure performance and record loss
             losses.update(loss.data[0], input[0].size(0))
 
