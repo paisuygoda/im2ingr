@@ -368,8 +368,8 @@ def adjust_learning_rate(optimizer, epoch, opts):
     print('Initial base params lr: %f' % optimizer.param_groups[0]['lr'])
     print('Initial vision lr: %f' % optimizer.param_groups[1]['lr'])
 
-    # after first modality change we set patience to 3
-    opts.patience += 2
+    # after first modality change we set patience to 2
+    opts.patience = 2
 
 if __name__ == '__main__':
     main()
