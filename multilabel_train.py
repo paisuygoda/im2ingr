@@ -245,7 +245,7 @@ def validate(val_loader, model, criterion):
             except:
                 pass
         target_labels[0] = 0
-        ans_label = torch.autograd.Variable(torch.Tensor(target_labels)).cuda()
+        ans_label = torch.autograd.Variable(torch.Tensor(target_labels)).view(1, -1).cuda()
 
         # compute output
         output = model(input_img)
