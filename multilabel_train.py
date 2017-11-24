@@ -56,8 +56,6 @@ class ingr_mult(nn.Module):
 # =============================================================================
 parser = get_parser()
 opts = parser.parse_args()
-
-
 # =============================================================================
 
 def main():
@@ -81,11 +79,8 @@ def main():
     else:
         criterion = cosine_crit
 
-    # # creating different parameter groups
-    params = list(map(id, model.visionMLP.parameters()))
-
     # optimizer - with lr initialized accordingly
-    optimizer = torch.optim.Adam([{'params': params}], lr=opts.lr)
+    optimizer = torch.optim.Adam([{'params': model.parameters()}], lr=opts.lr)
 
     if opts.resume:
         print("Resume not implemented")
