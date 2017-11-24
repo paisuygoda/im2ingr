@@ -163,7 +163,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
         # measure data loading time
         data_time.update(time.time() - end)
-        if target[0] == -1:
+        if torch.equal(target[0], torch.Tensor([-1])):
             continue
 
         input_img = torch.autograd.Variable(input[0]).cuda()
