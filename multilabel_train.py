@@ -173,7 +173,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         for item in input[1][0].long():
             target_labels[item] = 1.0
         target_labels[0] = 0
-        ans_label = torch.autograd.Variable(torch.Tensor(target_labels))
+        ans_label = torch.autograd.Variable(torch.Tensor(target_labels)).cuda()
 
         # compute output
         output = model(input_img)
