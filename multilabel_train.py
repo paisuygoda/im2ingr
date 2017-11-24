@@ -171,7 +171,10 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
         target_labels = np.zeros(opts.numIngrs)
         for item in input[1][0].long():
-            target_labels[item] = 1.0
+            try:
+                target_labels[item] = 1.0
+            except:
+                pass
         target_labels[0] = 0
         ans_label = torch.autograd.Variable(torch.Tensor(target_labels)).cuda()
 
@@ -237,7 +240,10 @@ def validate(val_loader, model, criterion):
 
         target_labels = np.zeros(opts.numIngrs)
         for item in input[1]:
-            target_labels[item] = 1
+            try:
+                target_labels[item] = 1
+            except:
+                pass
         target_labels[0] = 0
         ans_label = torch.autograd.Variable(torch.Tensor(target_labels)).cuda()
 
