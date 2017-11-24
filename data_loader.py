@@ -28,7 +28,8 @@ def resize(img):
 
 class ImagerLoader(data.Dataset):
     def __init__(self, img_path, transform=None, target_transform=None,
-                 loader=default_loader,square=False,data_path=None,partition=None,sem_reg=None,ingrW2V=None):
+                 loader=default_loader,square=False,data_path=None,partition=None,sem_reg=None,ingrW2V=None,
+                 multilabel=False):
         ingr_id, _ = torchwordemb.load_word2vec_bin(ingrW2V)
         self.ingr_id = ingr_id
 
@@ -46,7 +47,10 @@ class ImagerLoader(data.Dataset):
         self.square  = square
 
         self.imgPath = img_path
-        self.mismtch = 0.8
+        if multilabel:
+            self.mismtch = 0.0
+        else:
+            self.mismtch = 0.8
         self.maxInst = 20
         with open(os.path.join(data_path,'ingredients_dict.p'),'rb') as f:
             self.ingr_dic = pickle.load(f)
