@@ -147,6 +147,7 @@ class im2recipe(nn.Module):
         return output 
 
 # Tweaked im2recipe model for ingredient retrieval
+
 class im2ingr(nn.Module):
     def __init__(self):
         super(im2ingr, self).__init__()

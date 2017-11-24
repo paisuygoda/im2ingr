@@ -208,8 +208,6 @@ def train(train_loader, model, criterion, optimizer, epoch):
         end = time.time()
 
     if opts.semantic_reg:
-        print(optimizer.param_groups[1]['lr'])
-        print(optimizer.param_groups[0]['lr'])
         print('Epoch: {0}\t'
                   'cos loss {cos_loss.val[0]:.4f} ({cos_loss.avg[0]:.4f})\t'
                   'img Loss {img_loss.val[0]:.4f} ({img_loss.avg[0]:.4f})\t'
@@ -371,7 +369,7 @@ def adjust_learning_rate(optimizer, epoch, opts):
     print('Initial vision lr: %f' % optimizer.param_groups[1]['lr'])
 
     # after first modality change we set patience to 3
-    opts.patience = 3
+    opts.patience += 2
 
 if __name__ == '__main__':
     main()
