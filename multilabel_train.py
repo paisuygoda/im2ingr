@@ -64,7 +64,7 @@ def main():
     os.environ["CUDA_VISIBLE_DEVICES"] = gpus
     model = ingr_mult()
     model.visionMLP = torch.nn.DataParallel(model.visionMLP, device_ids=range(len(opts.gpu)))
-    model.visionMLP = torch.nn.DataParallel(model.final_fc, device_ids=range(len(opts.gpu)))
+    model.final_fc = torch.nn.DataParallel(model.final_fc, device_ids=range(len(opts.gpu)))
     model.cuda()
 
     # define loss function (criterion) and optimizer
