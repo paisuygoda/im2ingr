@@ -70,14 +70,12 @@ def main():
     # define loss function (criterion) and optimizer
     # cosine similarity between embeddings -> input1, input2, target
     cosine_crit = nn.CosineEmbeddingLoss(0.1).cuda()
-    print(cosine_crit.size())
     # cosine_crit = nn.CosineEmbeddingLoss(0.1)
     if opts.semantic_reg:
         weights_class = torch.Tensor(opts.numClasses).fill_(1)
         weights_class[0] = 0  # the background class is set to 0, i.e. ignore
         # CrossEntropyLoss combines LogSoftMax and NLLLoss in one single class
         class_crit = nn.CrossEntropyLoss(weight=weights_class).cuda()
-        print(class_crit.size())
         # we will use two different criteria
         criterion = [cosine_crit, class_crit]
     else:
@@ -171,7 +169,6 @@ def train(train_loader, model, criterion, optimizer, epoch):
             continue
 
         input_img = torch.autograd.Variable(input[0]).cuda()
-        print(input_img.size())
 
         target_labels = np.zeros(opts.numIngrs)
         for item in input[1][0].long():
@@ -181,7 +178,6 @@ def train(train_loader, model, criterion, optimizer, epoch):
                 pass
         target_labels[0] = 0
         ans_label = torch.autograd.Variable(torch.Tensor(target_labels)).view(1, -1).cuda()
-        print(ans_label.size())
 
         # compute output
         output = model(input_img)
