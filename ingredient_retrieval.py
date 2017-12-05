@@ -39,6 +39,9 @@ for qid, query_emb in enumerate(img_embeds):
     query = ingr_dic[query_id]['ingr']
     result = ingr_dic[result_id]['ingr']
 
+    if qid < 10:
+        print("query = ", query, ", result = ", result)
+
     TP = []
     for item in query:
         if item in result:
