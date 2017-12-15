@@ -125,13 +125,14 @@ def main():
         batch_size=opts.batch_size, shuffle=False,
         num_workers=opts.workers, pin_memory=True)
     print('Validation loader prepared.')
+    nothing = input()
 
     # run epochs
     for epoch in range(opts.start_epoch, opts.epochs):
 
         # train for one epoch
         train(train_loader, model, criterion, optimizer, epoch)
-
+        nothing = input()
         # evaluate on validation set
         if (epoch + 1) % opts.valfreq == 0 and epoch != 0:
             val_loss = validate(val_loader, model, criterion)
