@@ -27,7 +27,7 @@ class ingr_mult(nn.Module):
             self.visionMLP = nn.Sequential(*modules)
 
             self.final_fc = nn.Sequential(
-                nn.Linear(opts.imfeatDim, opts.numIngrs),
+                nn.Linear(opts.imfeatDim, opts.numActiveIngrs),
                 nn.Sigmoid(),
             )
 
@@ -65,7 +65,7 @@ def main():
     model = ingr_mult()
     model.visionMLP = torch.nn.DataParallel(model.visionMLP, device_ids=range(len(opts.gpu)))
     model.final_fc = torch.nn.DataParallel(model.final_fc, device_ids=range(len(opts.gpu)))
-    model.cuda(len(opts.gpu)-1)
+    model.cuda()
 
     # define loss function (criterion) and optimizer
     # cosine similarity between embeddings -> input1, input2, target
@@ -170,7 +170,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
         input_img = torch.autograd.Variable(input[0]).cuda()
 
-        target_labels = np.zeros(opts.numIngrs)
+        target_labels = np.zeros(opts.numActiveIngrs)
         for item in input[1][0].long():
             try:
                 target_labels[item] = 1.0
