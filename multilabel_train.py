@@ -65,7 +65,7 @@ def main():
     model = ingr_mult()
     model.visionMLP = torch.nn.DataParallel(model.visionMLP, device_ids=range(len(opts.gpu)))
     model.final_fc = torch.nn.DataParallel(model.final_fc, device_ids=range(len(opts.gpu)))
-    model.cuda()
+    model.cuda(len(opts.gpu)-1)
 
     # define loss function (criterion) and optimizer
     # cosine similarity between embeddings -> input1, input2, target
@@ -125,15 +125,13 @@ def main():
         batch_size=opts.batch_size, shuffle=False,
         num_workers=opts.workers, pin_memory=True)
     print('Validation loader prepared.')
-    nothing = input()
 
     # run epochs
     for epoch in range(opts.start_epoch, opts.epochs):
 
         # train for one epoch
         train(train_loader, model, criterion, optimizer, epoch)
-        print("finished one epoch")
-        nothing = input()
+
         # evaluate on validation set
         if (epoch + 1) % opts.valfreq == 0 and epoch != 0:
             val_loss = validate(val_loader, model, criterion)
