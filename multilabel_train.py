@@ -65,7 +65,7 @@ def main():
     model = ingr_mult()
     model.visionMLP = torch.nn.DataParallel(model.visionMLP, device_ids=range(len(opts.gpu)))
     model.final_fc = torch.nn.DataParallel(model.final_fc, device_ids=range(len(opts.gpu)))
-    model.cuda(len(opts.gpu)-1)
+    model.cuda(range(len(opts.gpu)-1))
 
     # define loss function (criterion) and optimizer
     # cosine similarity between embeddings -> input1, input2, target
