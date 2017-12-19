@@ -132,6 +132,7 @@ def main():
 
         # train for one epoch
         train(train_loader, model, criterion, optimizer, epoch)
+        print("finished one epoch")
         nothing = input()
         # evaluate on validation set
         if (epoch + 1) % opts.valfreq == 0 and epoch != 0:
