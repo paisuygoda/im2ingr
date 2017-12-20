@@ -119,13 +119,13 @@ class ImagerLoader(data.Dataset):
         if self.target_transform is not None:
             target = self.target_transform(target)
 
-        rec_class = self.recipe_class[self.ingr_dic[recipeId]['dish']]
+        rec_class = self.recipe_class[self.ingr_dic[recipeId]['class']]
 
         if target == -1:
-            img_class = self.recipe_class[self.ingr_dic[rndId]['dish']]
+            img_class = self.recipe_class[self.ingr_dic[rndId]['class']]
             img_id = rndId
         else:
-            img_class = self.recipe_class[self.ingr_dic[recipeId]['dish']]
+            img_class = self.recipe_class[self.ingr_dic[recipeId]['class']]
             img_id = recipeId
 
         # output

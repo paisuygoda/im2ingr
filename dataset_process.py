@@ -94,7 +94,7 @@ def data_dict():
 
     for line in open('data/Rakuten/recipe01_all_20170118.txt', 'r', encoding="utf-8"):
         linelist = line.split('\t')
-        data[linelist[0]] = {"title": linelist[5], "dish": linelist[9]}
+        data[linelist[0]] = {"title": linelist[5], "dish": linelist[9], "class": linelist[3]}
 
     for line in open('data/Rakuten/recipe02_material_20160112.txt', 'r', encoding="utf-8"):
         count += 1.0
