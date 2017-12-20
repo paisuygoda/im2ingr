@@ -229,11 +229,12 @@ def validate(val_loader, model, criterion):
 
     # switch to evaluate mode
     model.eval()
-
+    count = 0.0
+    dist = 0.0
     for i, (input, target) in enumerate(val_loader):
 
         input_img = torch.autograd.Variable(input[0]).cuda()
-        target_labels = np.zeros(opts.numIngrs)
+        target_labels = np.zeros(opts.numActiveIngrs)
 
         for item in input[1]:
             try:
@@ -251,9 +252,10 @@ def validate(val_loader, model, criterion):
 
         # compute loss
         inglist = output[0].data.cpu().numpy()
-        dist = np.linalg.norm(target_labels - inglist)
-
-        print("*Val avg dist: ", dist)
+        dist += np.linalg.norm(target_labels - inglist)
+        count += 1.0
+    dist /= count
+    print("*Val avg dist: ", dist)
 
     return dist
 
