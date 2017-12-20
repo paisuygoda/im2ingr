@@ -29,7 +29,7 @@ def get_parser():
     parser.add_argument('--maxSeqlen', default=20, type=int)
     parser.add_argument('--maxIngrs', default=20, type=int)
     parser.add_argument('--maxImgs', default=5, type=int)
-    parser.add_argument('--numClasses', default=262813, type=int)
+    parser.add_argument('--numClasses', default=525, type=int)
     parser.add_argument('--numIngrs', default=10122, type=int)
     parser.add_argument('--numActiveIngrs', default=2000, type=int)
     parser.add_argument('--preModel', default='resNet50',type=str)

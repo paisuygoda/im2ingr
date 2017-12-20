@@ -124,8 +124,9 @@ def class_id_set():
     for line in open('data/Rakuten/recipe01_all_20170118.txt', 'r', encoding="utf-8"):
         linelist = line.split('\t')
         dish = linelist[9]
-        if dish not in recipe_class:
-            recipe_class[dish] = recipe_id
+        dish_class = linelist[3]
+        if dish_class not in recipe_class:
+            recipe_class[dish_class] = recipe_id
             recipe_id += 1
     print(recipe_id)
     with open('data/recipe_class.p', mode='wb') as f:
