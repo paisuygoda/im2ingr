@@ -213,10 +213,13 @@ def train(train_loader, model, criterion, optimizer, epoch):
         end = time.time()
 
     if opts.semantic_reg:
+        col_val = float(cos_losses.val)
+        col_avg = float(cos_losses.avg)
+        cll_val = float(cls_losses.val)
+        cll_avg = float(cls_losses.avg)
         print('Epoch: {0}\t'
-              'cos loss {cos_loss.val:.4f} ({cos_loss.avg:.4f})\t'
-              'class Loss {cls_loss.val:.4f} ({cls_loss.avg:.4f})'.format(
-            epoch, cos_loss=cos_losses, cls_loss=cls_losses))
+              'cos loss {1:.4f} ({2:.4f})\t'
+              'class Loss {3:.4f} ({4:.4f})'.format(epoch, col_val, col_avg, cll_val, cll_avg))
     else:
         print('Epoch: {0}\t'
               'Loss {loss.val:.4f} ({loss.avg:.4f})\t'.format(epoch, loss=cos_losses))
@@ -275,9 +278,13 @@ def validate(val_loader, model, criterion):
             losses.update(loss.data[0], input[0].size(0))
 
     if opts.semantic_reg:
+        col_val = float(cos_losses.val)
+        col_avg = float(cos_losses.avg)
+        cll_val = float(cls_losses.val)
+        cll_avg = float(cls_losses.avg)
         print('------------\nVal\t'
-              'cos loss {cos_loss.val:.4f} ({cos_loss.avg:.4f})\t'
-              'class Loss {cls_loss.val:.4f} ({cls_loss.avg:.4f})\n------------'.format(cos_loss=cos_losses, cls_loss=cls_losses))
+              'cos loss {0:.4f} ({1:.4f})\t'
+              'class Loss {2:.4f} ({3:.4f})\n------------'.format(col_val, col_avg, cll_val, cll_avg))
     else:
         print('------------\nVal\t'
               'cos loss {losses.val:.4f} ({losses.avg:.4f})\n------------'.format(losses=losses))
