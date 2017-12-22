@@ -57,7 +57,6 @@ def main():
             print("=> loading checkpoint '{}'".format(opts.resume))
             checkpoint = torch.load(opts.resume)
             opts.start_epoch = checkpoint['epoch']
-            opts.start_epoch = 0
             best_val = checkpoint['best_val']
             model.load_state_dict(checkpoint['state_dict'])
             optimizer.load_state_dict(checkpoint['optimizer'])
@@ -368,8 +367,8 @@ def adjust_learning_rate(optimizer, epoch, opts):
     print('Initial base params lr: %f' % optimizer.param_groups[0]['lr'])
     print('Initial vision lr: %f' % optimizer.param_groups[1]['lr'])
 
-    # after first modality change we set patience to 3
-    opts.patience += 2
+    # after first modality change we set patience to 2
+    opts.patience = 2
 
 if __name__ == '__main__':
     main()

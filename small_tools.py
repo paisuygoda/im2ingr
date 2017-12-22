@@ -4,6 +4,7 @@ import pickle
 import os
 from numpy import random
 from PIL import Image
+import csv
 import sys
 # import torchwordemb
 
@@ -131,12 +132,24 @@ def ingr_max():
 
     print("max ingr = ", max_ingr)
 
+def ontrogy():
+
+    tsv = csv.reader(open("data/synonym.tsv", "r", encoding="utf-8"), delimiter='\t')
+    dic = {}
+    for row in tsv:
+        if row[0] == "調理器具":
+            break
+        dic[row[2]] = row[1]
+
+    with open('data/ontrogy_ingrcls.p', mode='wb') as f:
+        pickle.dump(dic, f)
+
 """
 def look_bin():
     name, vec = torchwordemb.load_word2vec_bin("data/vocab.bin")
     print(name['*'])
 """
-print("MODE? (1 = json, 2 = image, 3 = pickle, 4 = text, 5 = img separation, \n\t6 = recipe_ingr, 7 = bin)")
+print("MODE? (1 = json, 2 = image, 3 = pickle, 4 = text, 5 = img separation, \n\t6 = recipe_ingr, 7 = ontrogy)")
 m = input()
 print("PATH?")
 path = input()
@@ -155,6 +168,6 @@ elif m == '5':
 elif m == '6':
     ingr_max()
 elif m == '7':
-    look_bin()
+    ontrogy()
 else:
     print("Bad input mode")

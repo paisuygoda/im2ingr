@@ -13,6 +13,8 @@ with open("results/rec_embeds.pkl", 'rb') as f:
     rec_embeds = pickle.load(f)
 with open("results/rec_ids.pkl", 'rb') as f:
     rec_ids = pickle.load(f)
+with open('data/ontrogy_ingrcls.p', mode='rb') as f:
+    ontrogy = pickle.load(f)
 
 tp = 0
 fp = 0
@@ -36,8 +38,21 @@ for qid, query_emb in enumerate(img_embeds):
     query_id = str(img_ids[qid])
     result_id = str(rec_ids[id])
 
-    query = ingr_dic[query_id]['ingr']
-    result = ingr_dic[result_id]['ingr']
+    ori_query = ingr_dic[query_id]['ingr']
+    ori_result = ingr_dic[result_id]['ingr']
+
+    query = []
+    result = []
+    for item in ori_query:
+        if item in ontrogy:
+            query.append(ontrogy[item])
+    for item in ori_result:
+        if item in ontrogy:
+            result.append(ontrogy[item])
+
+    if 10 < qid < 20:
+        print("query = ", ori_query, ", result = ", ori_result)
+        print("new_query = ", query, ", new_result = ", result)
 
     TP = []
     for item in query:
@@ -51,4 +66,4 @@ for qid, query_emb in enumerate(img_embeds):
 precision = float(tp)/float(tp+fp)
 recall = float(tp)/float(tp+fn)
 f = 2 * precision * recall / (precision + recall)
-print('\npresision = ', precision, '\nrecall = ', recall, '\nf-measure = ', f)
+print('\nprecision = ', precision, '\nrecall = ', recall, '\nf-measure = ', f)
