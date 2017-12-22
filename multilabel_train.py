@@ -242,7 +242,6 @@ def validate(val_loader, model, criterion):
             except:
                 pass
         target_labels[0] = 0
-        target_labels.numpy()
 
         # compute output
         output = model(input_img)
