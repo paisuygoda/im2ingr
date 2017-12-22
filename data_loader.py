@@ -29,8 +29,7 @@ def resize(img):
 
 class ImagerLoader(data.Dataset):
     def __init__(self, img_path, transform=None, target_transform=None,
-                 loader=default_loader,square=False,data_path=None,partition=None,sem_reg=None,ingrW2V=None,
-                 multilabel=False)
+                 loader=default_loader,square=False,data_path=None,partition=None,sem_reg=None,ingrW2V=None,multilabel=False):
 
         with open('data/ingr_id.p','rb') as f:
             self.ingr_id = pickle.load(f)
