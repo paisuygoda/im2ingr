@@ -136,13 +136,23 @@ def ontrogy():
 
     tsv = csv.reader(open("data/synonym.tsv", "r", encoding="utf-8"), delimiter='\t')
     dic = {}
+    word = ""
+    count = 1
+    id_dic = {}
     for row in tsv:
         if row[0] == "調理器具":
             break
+        if row[1] is not word:
+            word = row[1]
+            id_dic[word] = count
+            count += 1
         dic[row[2]] = row[1]
 
     with open('data/ontrogy_ingrcls.p', mode='wb') as f:
         pickle.dump(dic, f)
+    with open('data/ingr_id.p', mode='wb') as f:
+        pickle.dump(id_dic, f)
+    print(count-1)
 
 """
 def look_bin():

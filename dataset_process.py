@@ -34,10 +34,12 @@ def process_outline():
     f.write(text)
     f.close()
 """
-
+"""
 def process_ingredients():
     data = []
     id = 0
+    
+
     for line in open('data/Rakuten/recipe02_material_20160112.txt', 'r', encoding="utf-8"):
         linelist = line.split()
         if id == 0:
@@ -69,7 +71,7 @@ def process_ingredients():
     f = open('data/ingredients.txt', 'w')
     f.write(text)
     f.close()
-
+"""
 
 def combine_texts():
 
@@ -91,6 +93,10 @@ def data_dict():
     data = {}
     recipeid = 0
     count = 0.0
+    misscount = 0.0
+    dropped_dict = {}
+    with open('data/ontrogy_ingrcls.p', mode='rb') as f:
+        ontrogy = pickle.load(f)
 
     for line in open('data/Rakuten/recipe01_all_20170118.txt', 'r', encoding="utf-8"):
         linelist = line.split('\t')
@@ -109,12 +115,25 @@ def data_dict():
             recipeid = linelist[0]
             ingrlist = []
         text = re.sub('[◎●Ａ　ABＢ■○①②③☆★※＊*▽▼▲△◆◇・()（）]', '', linelist[1])
-        ingrlist.append(text)
-        data[recipeid]['ingr'] = ingrlist
+        if text in ontrogy:
+            ingrlist.append(ontrogy[text])
+        else:
+            if text in dropped_dict:
+                dropped_dict[text]+=1
+            else:
+                dropped_dict[text] = 1
+            misscount += 1.0
+    data[recipeid]['ingr'] = ingrlist
 
     with open('data/ingredients_dict.p', mode='wb') as f:
         pickle.dump(data, f)
 
+    print("\ndropped ingredient: ", misscount/count*100.0, "%")
+
+    f = open('dropped_list.txt', 'w', encoding="utf-8")
+    for k,v in dropped_dict.items():
+        f.write(str(k) +"\t" +str(v)+"\n")
+    f.close()
 
 def class_id_set():
 
@@ -135,4 +154,4 @@ def class_id_set():
     with open('data/recipe_id2recipe_text.p', mode='wb') as f:
         pickle.dump(id2text, f)
 
-class_id_set()
+data_dict()

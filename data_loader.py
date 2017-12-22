@@ -7,6 +7,7 @@ import lmdb
 import torch
 import torchwordemb
 
+
 def default_loader(path):
     try:
         im = Image.open(path).convert('RGB')
@@ -29,9 +30,10 @@ def resize(img):
 class ImagerLoader(data.Dataset):
     def __init__(self, img_path, transform=None, target_transform=None,
                  loader=default_loader,square=False,data_path=None,partition=None,sem_reg=None,ingrW2V=None,
-                 multilabel=False):
-        ingr_id, _ = torchwordemb.load_word2vec_bin(ingrW2V)
-        self.ingr_id = ingr_id
+                 multilabel=False)
+
+        with open('data/ingr_id.p','rb') as f:
+            self.ingr_id = pickle.load(f)
 
         if data_path==None:
             raise Exception('No data path specified.')
@@ -97,7 +99,9 @@ class ImagerLoader(data.Dataset):
         try:
             l = self.ingr_dic[recipeId]['ingr']
         except:
-            l = ["*"]
+            l = []
+        if len(l) is 0:
+            l = ['*']
             target = -1
         for item in l:
             if item in self.ingr_id:
