@@ -221,81 +221,13 @@ def train(train_loader, model, criterion, optimizer, epoch):
               'cos loss {1:.4f} ({2:.4f})\t'
               'class Loss {3:.4f} ({4:.4f})'.format(epoch, col_val, col_avg, cll_val, cll_avg))
     else:
+        col_val = float(cos_losses.val[0])
+        col_avg = float(cos_losses.avg[0])
         print('Epoch: {0}\t'
-              'Loss {loss.val:.4f} ({loss.avg:.4f})\t'.format(epoch, loss=cos_losses))
+              'Loss {1:.4f} ({2:.4f})\t'.format(epoch, col_val, col_avg))
 
 
 def validate(val_loader, model, criterion):
-    batch_time = AverageMeter()
-    data_time = AverageMeter()
-    cos_losses = AverageMeter()
-    if opts.semantic_reg:
-        cls_losses = AverageMeter()
-
-    # switch to train mode
-    model.train()
-
-    end = time.time()
-    for i, (input, target) in enumerate(val_loader):
-
-        # measure data loading time
-        data_time.update(time.time() - end)
-        if torch.equal(target[0], torch.LongTensor([-1])):
-            continue
-
-        input_img = torch.autograd.Variable(input[0]).cuda()
-
-        target_labels = np.zeros(opts.numActiveIngrs)
-        for item in input[1][0].long():
-            try:
-                target_labels[item] = 1.0
-            except:
-                pass
-        target_labels[0] = 0
-        ans_label = torch.autograd.Variable(torch.Tensor(target_labels)).view(1, -1).cuda()
-
-        # compute output
-        output = model(input_img)
-
-        target_var = list()
-        for j in range(len(target)):
-            target[j] = target[j].cuda(async=True)
-            target_var.append(torch.autograd.Variable(target[j]))
-
-        # compute loss
-        if opts.semantic_reg:
-            target_cls = torch.autograd.Variable(target[1])
-            cos_loss = criterion[0](output[0], ans_label, target_var[0])
-            cls_loss = criterion[1](output[1], target_cls)
-            # combined loss
-            loss = opts.cos_weight * cos_loss + opts.cls_weight * cls_loss
-
-            # measure performance and record losses
-            cos_losses.update(cos_loss.data, input[0].size(0))
-            cls_losses.update(cls_loss.data, input[0].size(0))
-        else:
-            loss = criterion(output[0], ans_label, target_var[0])
-            # measure performance and record loss
-            cos_losses.update(loss.data[0], input[0].size(0))
-
-        # measure elapsed time
-        batch_time.update(time.time() - end)
-        end = time.time()
-
-    if opts.semantic_reg:
-        col_val = float(cos_losses.val[0])
-        col_avg = float(cos_losses.avg[0])
-        cll_val = float(cls_losses.val[0])
-        cll_avg = float(cls_losses.avg[0])
-        print('*Val\t'
-              'cos loss {1:.4f} ({2:.4f})\t'
-              'class Loss {3:.4f} ({4:.4f})'.format(col_val, col_avg, cll_val, cll_avg))
-    else:
-        print('Epoch: {0}\t'
-              'Loss {loss.val:.4f} ({loss.avg:.4f})\t'.format(loss=cos_losses))
-
-
-def validate_old(val_loader, model, criterion):
 
     # switch to evaluate mode
     # model.eval()
