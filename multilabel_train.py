@@ -255,9 +255,6 @@ def validate(val_loader, model, criterion):
         inglist = output[0].data.cpu().numpy()
         dist += np.linalg.norm(target_labels - inglist)
         count += 1.0
-        if i is 0:
-            print(target_labels)
-            print(inglist)
     dist /= count
     print("*Val avg dist: ", dist)
 
