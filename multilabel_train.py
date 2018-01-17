@@ -70,7 +70,7 @@ def main():
     # cosine similarity between embeddings -> input1, input2, target
     # cosine_crit = nn.CosineEmbeddingLoss(0.1).cuda()
     # cosine_crit = nn.CosineEmbeddingLoss(0.1)
-    crit = nn.MultiLabelSoftMarginLoss().cuda()
+    crit = nn.MultiLabelSoftMarginLoss()
 
     if opts.semantic_reg:
         weights_class = torch.Tensor(opts.numClasses).fill_(1)
@@ -170,13 +170,14 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
         input_img = torch.autograd.Variable(input[0]).cuda()
 
-        target_labels = np.zeros(opts.numActiveIngrs)
-        for item in input[1][0].long():
-            try:
-                target_labels[item] = 1.0
-            except:
-                pass
-        target_labels[0] = 0
+        target_labels = np.zeros((opts.batch_size, opts.numActiveIngrs))
+        for j, one_pic in enumerate(input[0]):
+            for item in one_pic.long():
+                try:
+                    target_labels[j][item] = 1.0
+                except:
+                    pass
+            target_labels[0] = 0
         ans_label = torch.autograd.Variable(torch.Tensor(target_labels)).view(1, -1).cuda()
 
         # compute output
@@ -199,7 +200,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
             cos_losses.update(cos_loss.data, input[0].size(0))
             cls_losses.update(cls_loss.data, input[0].size(0))
         else:
-            loss = criterion(output[0], ans_label.narrow(0,i,1), target_var[0])
+            loss = criterion(output[0], ans_label)
             # measure performance and record loss
             cos_losses.update(loss.data[0], input[0].size(0))
 
