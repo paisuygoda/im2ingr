@@ -124,7 +124,6 @@ def main():
         batch_size=opts.batch_size, shuffle=False,
         num_workers=opts.workers, pin_memory=True)
     print('Validation loader prepared.')
-    validate(val_loader, model, criterion)
     # run epochs
     for epoch in range(opts.start_epoch, opts.epochs):
 
@@ -187,7 +186,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
             target_var.append(torch.autograd.Variable(target[j]))
 
         # compute loss
-        print("output size = ", type(output[0].data()))
+        print("output size = ", type(output.data()))
         print("anslabel size = ", type(ans_label.data()))
         if opts.semantic_reg:
             target_cls = torch.autograd.Variable(target[1])
@@ -200,7 +199,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
             cos_losses.update(cos_loss.data, input[0].size(0))
             cls_losses.update(cls_loss.data, input[0].size(0))
         else:
-            loss = criterion(output[0], ans_label, target_var[0])
+            loss = criterion(output, ans_label, target_var[0])
             # measure performance and record loss
             cos_losses.update(loss.data[0], input[0].size(0))
 
