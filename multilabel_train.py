@@ -255,6 +255,7 @@ def validate(val_loader, model, criterion):
                 except:
                     pass
             target_labels[j][0] = 0
+        ans_label = torch.autograd.Variable(torch.Tensor(target_labels)).cuda()
 
         # compute output
         output = model(input_img)
@@ -263,8 +264,9 @@ def validate(val_loader, model, criterion):
             continue
 
         # compute loss
-        inglist = output[0].data.cpu().numpy()
-        dist += np.linalg.norm(target_labels - inglist)
+        crit = nn.MultiLabelSoftMarginLoss()
+        loss = crit(output[0], ans_label)
+        dist += loss
         count += 1.0
     dist /= count
     print("*Val avg dist: ", dist)
