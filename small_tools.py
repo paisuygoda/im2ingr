@@ -134,7 +134,7 @@ def ingr_max():
 
 def ontrogy():
 
-    tsv = csv.reader(open("data/synonym.tsv", "r", encoding="utf-8"), delimiter='\t')
+    tsv = csv.reader(open("data/synonym_edited.tsv", "r", encoding="utf-8"), delimiter='\t')
     dic = {}
     word = ""
     count = 1
