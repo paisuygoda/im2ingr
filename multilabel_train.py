@@ -126,6 +126,7 @@ def main():
         batch_size=opts.batch_size, shuffle=False,
         num_workers=opts.workers, pin_memory=True)
     print('Validation loader prepared.')
+    print(validate(val_loader, model, criterion))
     # run epochs
     for epoch in range(opts.start_epoch, opts.epochs):
 
@@ -171,7 +172,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         input_img = torch.autograd.Variable(input[0]).cuda()
 
         target_labels = np.zeros((opts.batch_size, opts.numActiveIngrs))
-        for j, one_pic in enumerate(input[0]):
+        for j, one_pic in enumerate(input[1]):
             for item in one_pic.long():
                 try:
                     target_labels[j][item] = 1.0
@@ -237,13 +238,23 @@ def validate(val_loader, model, criterion):
     for i, (input, target) in enumerate(val_loader):
 
         input_img = torch.autograd.Variable(input[0]).cuda()
-        target_labels = np.zeros(opts.numActiveIngrs)
 
+        target_labels = np.zeros(opts.numActiveIngrs)
         for item in input[1]:
             try:
                 target_labels[item] = 1
             except:
                 pass
+
+        target_labels = np.zeros((opts.batch_size, opts.numActiveIngrs))
+        for j, one_pic in enumerate(input[1]):
+            for item in one_pic.long():
+                try:
+                    target_labels[j][item] = 1.0
+                except:
+                    pass
+            target_labels[0] = 0
+        ans_label = torch.autograd.Variable(torch.Tensor(target_labels)).cuda()
         target_labels[0] = 0
 
         # compute output
