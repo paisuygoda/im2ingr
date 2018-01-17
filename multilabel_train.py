@@ -42,7 +42,6 @@ class ingr_mult(nn.Module):
         y = self.visionMLP(x)
         y = y.view(y.size(0), -1)
         y_label = self.final_fc(y)
-        y_label = norm(y_label)
 
         if opts.semantic_reg:
             sem_class = self.semantic_branch(y)
@@ -188,6 +187,8 @@ def train(train_loader, model, criterion, optimizer, epoch):
             target_var.append(torch.autograd.Variable(target[j]))
 
         # compute loss
+        print("output size = ", type(output[0]))
+        print("anslabel size = ", type(ans_label))
         if opts.semantic_reg:
             target_cls = torch.autograd.Variable(target[1])
             cos_loss = criterion[0](output[0], ans_label, target_var[0])

@@ -31,7 +31,7 @@ def get_parser():
     parser.add_argument('--maxImgs', default=5, type=int)
     parser.add_argument('--numClasses', default=525, type=int)
     parser.add_argument('--numIngrs', default=3471, type=int)
-    parser.add_argument('--numActiveIngrs', default=3471, type=int)
+    parser.add_argument('--numActiveIngrs', default=1000, type=int)
     parser.add_argument('--preModel', default='resNet50',type=str)
     # parser.add_argument('--semantic_reg', default=True,type=bool)
     parser.add_argument('--semantic_reg', default=False,type=bool)
