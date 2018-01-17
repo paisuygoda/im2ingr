@@ -165,7 +165,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
         # measure data loading time
         data_time.update(time.time() - end)
-        if torch.equal(target[0], torch.LongTensor([-1])):
+        if torch.equal(target[0], torch.LongTensor([-1])) or (len(input[0]) < opts.batch_size):
             continue
 
         input_img = torch.autograd.Variable(input[0]).cuda()
@@ -178,7 +178,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
                 except:
                     pass
             target_labels[0] = 0
-        ans_label = torch.autograd.Variable(torch.Tensor(target_labels)).view(1, -1).cuda()
+        ans_label = torch.autograd.Variable(torch.Tensor(target_labels)).cuda()
 
         # compute output
         output = model(input_img)
