@@ -232,10 +232,13 @@ def train(train_loader, model, criterion, optimizer, epoch):
 def validate(val_loader, model, criterion):
 
     # switch to evaluate mode
-    # model.eval()
+    model.eval()
     count = 0.0
     dist = 0.0
     for i, (input, target) in enumerate(val_loader):
+
+        if len(input[0]) < opts.batch_size:
+            continue
 
         input_img = torch.autograd.Variable(input[0]).cuda()
 
@@ -264,9 +267,8 @@ def validate(val_loader, model, criterion):
             continue
 
         # compute loss
-        crit = nn.MultiLabelSoftMarginLoss()
-        loss = crit(output[0], ans_label)
-        dist += loss
+        loss = criterion(output[0], ans_label)
+        dist += loss.data[0]
         count += 1.0
     dist /= count
     print("*Val avg dist: ", dist)
