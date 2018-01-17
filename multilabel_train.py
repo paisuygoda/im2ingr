@@ -186,8 +186,8 @@ def train(train_loader, model, criterion, optimizer, epoch):
             target_var.append(torch.autograd.Variable(target[j]))
 
         # compute loss
-        print("output size = ", type(output.data()))
-        print("anslabel size = ", type(ans_label.data()))
+        print("output size = ", output.size())
+        print("anslabel size = ", ans_label.size())
         if opts.semantic_reg:
             target_cls = torch.autograd.Variable(target[1])
             cos_loss = criterion[0](output[0], ans_label, target_var[0])
