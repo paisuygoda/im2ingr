@@ -178,7 +178,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
                     target_labels[j][item] = 1.0
                 except:
                     pass
-            target_labels[0] = 0
+            target_labels[j][0] = 0
         ans_label = torch.autograd.Variable(torch.Tensor(target_labels)).cuda()
 
         # compute output
@@ -245,6 +245,7 @@ def validate(val_loader, model, criterion):
                 target_labels[item] = 1
             except:
                 pass
+        target_labels[0] = 0
 
         target_labels = np.zeros((opts.batch_size, opts.numActiveIngrs))
         for j, one_pic in enumerate(input[1]):
@@ -253,9 +254,7 @@ def validate(val_loader, model, criterion):
                     target_labels[j][item] = 1.0
                 except:
                     pass
-            target_labels[0] = 0
-        ans_label = torch.autograd.Variable(torch.Tensor(target_labels)).cuda()
-        target_labels[0] = 0
+            target_labels[j][0] = 0
 
         # compute output
         output = model(input_img)
