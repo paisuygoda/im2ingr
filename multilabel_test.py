@@ -97,7 +97,7 @@ def main():
                                      std=[0.229, 0.224, 0.225])
 
     # preparing the training loader
-    train_loader = torch.utils.data.DataLoader(
+    test_loader = torch.utils.data.DataLoader(
         ImagerLoader(opts.img_path,
                      transforms.Compose([
                          transforms.Scale(256),  # rescale the image keeping the original aspect ratio
@@ -116,7 +116,7 @@ def main():
     test(test_loader, model, criterion)
 
 
-def test(test_loader, model, criterion, optimizer, epoch):
+def test(test_loader, model, criterion):
     batch_time = AverageMeter()
     data_time = AverageMeter()
     cos_losses = AverageMeter()
@@ -150,8 +150,8 @@ def test(test_loader, model, criterion, optimizer, epoch):
         output = model(input_img)
 
         target_var = list()
-        for j in range(len(target)):
-            target[j] = target[j].cuda(async=True)
+        for j in range(len(target)-2):
+            target[j] = target[j].numpy().cuda(async=True)
             target_var.append(torch.autograd.Variable(target[j]))
 
         # compute loss

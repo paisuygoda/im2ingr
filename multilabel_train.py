@@ -242,14 +242,6 @@ def validate(val_loader, model, criterion):
 
         input_img = torch.autograd.Variable(input[0]).cuda()
 
-        target_labels = np.zeros(opts.numActiveIngrs)
-        for item in input[1]:
-            try:
-                target_labels[item] = 1
-            except:
-                pass
-        target_labels[0] = 0
-
         target_labels = np.zeros((opts.batch_size, opts.numActiveIngrs))
         for j, one_pic in enumerate(input[1]):
             for item in one_pic.long():
