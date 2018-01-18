@@ -223,8 +223,8 @@ def train(train_loader, model, criterion, optimizer, epoch):
               'cos loss {1:.4f} ({2:.4f})\t'
               'class Loss {3:.4f} ({4:.4f})'.format(epoch, col_val, col_avg, cll_val, cll_avg))
     else:
-        col_val = cos_losses.val[0]
-        col_avg = cos_losses.avg[0]
+        col_val = cos_losses.val
+        col_avg = cos_losses.avg
         print('Epoch: {0}\t'
               'Loss {1:.4f} ({2:.4f})\t'.format(epoch, col_val, col_avg))
 
