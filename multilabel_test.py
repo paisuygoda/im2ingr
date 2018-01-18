@@ -151,7 +151,7 @@ def test(test_loader, model, criterion):
 
         target_var = list()
         for j in range(len(target)-2):
-            target[j] = torch.autograd.Variable(target[j]).cuda(async=True)
+            target[j] = target[j].cuda(async=True)
             target_var.append(torch.autograd.Variable(target[j]))
 
         # compute loss
@@ -182,7 +182,7 @@ def test(test_loader, model, criterion):
             data3 = target[-1]
         else:
             data0 = np.concatenate((data0,output[0].data.cpu().numpy()),axis=0)
-            data1 = np.concatenate((data1,output[1].data.cpu().numpy()),axis=0)
+            data1 = np.concatenate((data1,ans_label.data.cpu().numpy()),axis=0)
             data2 = np.concatenate((data2,target[-2]),axis=0)
             data3 = np.concatenate((data3,target[-1]),axis=0)
 
