@@ -151,7 +151,7 @@ def test(test_loader, model, criterion):
 
         target_var = list()
         for j in range(len(target)-2):
-            target[j] = target[j].numpy().cuda(async=True)
+            target[j] = torch.autograd.Variable(torch.Tensor(target[j])).cuda(async=True)
             target_var.append(torch.autograd.Variable(target[j]))
 
         # compute loss
