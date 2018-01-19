@@ -56,6 +56,7 @@ def look_pickle(path):
             print(file)
     else:
         print(file)
+    print(len(file))
 
 
 def look_txt(path):
@@ -142,7 +143,7 @@ def ontrogy():
     for row in tsv:
         if row[0] == "調理器具":
             break
-        if row[1] is not word:
+        if row[1] != word:
             word = row[1]
             id_dic[word] = count
             count += 1
@@ -152,7 +153,7 @@ def ontrogy():
         pickle.dump(dic, f)
     with open('data/ingr_id.p', mode='wb') as f:
         pickle.dump(id_dic, f)
-    print(count-1)
+    print(count)
 
 """
 def look_bin():

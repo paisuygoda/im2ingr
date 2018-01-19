@@ -201,53 +201,6 @@ def test(test_loader, model, criterion):
         pickle.dump(data3, f)
 
 
-def validate(val_loader, model, criterion):
-
-    # switch to evaluate mode
-    model.eval()
-    count = 0.0
-    dist = 0.0
-    for i, (input, target) in enumerate(val_loader):
-
-        if len(input[0]) < opts.batch_size:
-            continue
-
-        input_img = torch.autograd.Variable(input[0]).cuda()
-
-        target_labels = np.zeros(opts.numActiveIngrs)
-        for item in input[1]:
-            try:
-                target_labels[item] = 1
-            except:
-                pass
-        target_labels[0] = 0
-
-        target_labels = np.zeros((opts.batch_size, opts.numActiveIngrs))
-        for j, one_pic in enumerate(input[1]):
-            for item in one_pic.long():
-                try:
-                    target_labels[j][item] = 1.0
-                except:
-                    pass
-            target_labels[j][0] = 0
-        ans_label = torch.autograd.Variable(torch.Tensor(target_labels)).cuda()
-
-        # compute output
-        output = model(input_img)
-
-        if target[0] is -1:
-            continue
-
-        # compute loss
-        loss = criterion(output[0], ans_label)
-        dist += loss.data[0]
-        count += 1.0
-    dist /= count
-    print("*Val avg dist: ", dist)
-
-    return dist
-
-
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     filename = opts.snapshots + 'model_multilabel_e%03d_v-%.3f.pth.tar' % (state['epoch'], state['best_val'])
     if is_best:

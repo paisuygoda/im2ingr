@@ -126,7 +126,6 @@ def main():
         batch_size=opts.batch_size, shuffle=False,
         num_workers=opts.workers, pin_memory=True)
     print('Validation loader prepared.')
-    print(validate(val_loader, model, criterion))
     # run epochs
     for epoch in range(opts.start_epoch, opts.epochs):
 

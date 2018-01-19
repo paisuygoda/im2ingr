@@ -114,7 +114,7 @@ def data_dict():
             data[recipeid]['ingr'] = ingrlist
             recipeid = linelist[0]
             ingrlist = []
-        text = re.sub('[◎●Ａ　ABＢ■○①②③☆★※＊*▽▼▲△◆◇・()（）]', '', linelist[1])
+        text = re.sub('[◎●Ａ　 ABＢ■○①②③☆★※＊*▽▼▲△◆◇・()（）]', '', linelist[1])
         if text in ontrogy:
             ingrlist.append(ontrogy[text])
         else:

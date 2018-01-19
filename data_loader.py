@@ -34,6 +34,9 @@ class ImagerLoader(data.Dataset):
         with open('data/ingr_id.p','rb') as f:
             self.ingr_id = pickle.load(f)
 
+        with open('data/ontrogy_ingrcls.p','rb') as f:
+            self.ontrogy = pickle.load(f)
+
         if data_path==None:
             raise Exception('No data path specified.')
 
@@ -104,7 +107,11 @@ class ImagerLoader(data.Dataset):
             target = -1
         for item in l:
             if item in self.ingr_id:
-                ingrs.append(self.ingr_id[item])
+                try:
+                    new_item = self.ontrogy[item]
+                    ingrs.append(self.ingr_id[new_item])
+                except:
+                    ingrs.append(0)
             else:
                 ingrs.append(0)
         igr_ln = len(ingrs)

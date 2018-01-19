@@ -153,6 +153,7 @@ def test(test_loader, model, criterion):
 
     return cos_losses.avg
 
+
 class AverageMeter(object):
     """Computes and stores the average and current value"""
     def __init__(self):
