@@ -65,6 +65,7 @@ def main():
     model.visionMLP = torch.nn.DataParallel(model.visionMLP, device_ids=range(len(opts.gpu)))
     model.final_fc = torch.nn.DataParallel(model.final_fc, device_ids=range(len(opts.gpu)))
     model.cuda()
+    last_save = 0
 
     # define loss function (criterion) and optimizer
     # cosine similarity between embeddings -> input1, input2, target
@@ -137,15 +138,19 @@ def main():
             val_loss = validate(val_loader, model, criterion)
 
             # save the best model
-            is_best = val_loss < best_val
+            is_best = (val_loss < best_val) or (epoch + 1 == opts.epochs) or ((epoch + 1) % 100 == 0)
             best_val = min(val_loss, best_val)
-            save_checkpoint({
+            saved = save_checkpoint({
                 'epoch': epoch + 1,
                 'state_dict': model.state_dict(),
                 'best_val': best_val,
                 'optimizer': optimizer.state_dict(),
                 'curr_val': val_loss,
             }, is_best)
+            if saved:
+                last_save = epoch
+            else:
+                print("model not saved. last save: epoch ", last_save)
 
             print('** Validation: %f (best)' % best_val)
 
@@ -177,7 +182,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
                     target_labels[j][item] = 1.0
                 except:
                     pass
-            target_labels[j][0] = 0
+            target_labels[j][0] = 0.0
         ans_label = torch.autograd.Variable(torch.Tensor(target_labels)).cuda()
 
         # compute output
@@ -270,7 +275,11 @@ def validate(val_loader, model, criterion):
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     filename = opts.snapshots + 'model_multilabel_e%03d_v-%.3f.pth.tar' % (state['epoch'], state['best_val'])
     if is_best:
+        print("model saved.")
         torch.save(state, filename)
+        return True
+    else:
+        return False
 
 
 class AverageMeter(object):

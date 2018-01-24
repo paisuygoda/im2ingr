@@ -81,8 +81,8 @@ def ir_multilabelbase():
     #     img_ids = pickle.load(f)
     with open("results/rec_embeds.pkl", 'rb') as f:
         rec_embeds = pickle.load(f)
-    # with open("results/rec_ids.pkl", 'rb') as f:
-    #     rec_ids = pickle.load(f)
+    with open("results/rec_ids.pkl", 'rb') as f:
+        rec_ids = pickle.load(f)
     with open('data/ontrogy_ingrcls.p', mode='rb') as f:
         ontrogy = pickle.load(f)
     with open('data/ingr_id.p', 'rb') as f:
@@ -95,12 +95,12 @@ def ir_multilabelbase():
     tp = 0
     fp = 0
     fn = 0
-    thres = 0.5
+    thres = 0.7
 
     for count, (out_label, ans_label) in enumerate(zip(img_embeds, rec_embeds)):
 
-        sys.stdout.write("\r%d" % count)
-        sys.stdout.flush()
+        # sys.stdout.write("\r%d" % count)
+        # sys.stdout.flush()
         if count >= 1000:
             break
 
@@ -113,18 +113,20 @@ def ir_multilabelbase():
             except:
                 pass
 
+        result_id = str(rec_ids[count])
+        ori_result = ingr_dic[result_id]['ingr']
+
         result = []
         for i, v in enumerate(ans_label):
             if v < thres:
                 continue
-            print(i)
             try:
                 result.append(ontrogy[id_ingr[i]])
             except:
                 pass
 
-        if 10 < count < 20:
-            print("query = ", query, "\nresult = ", result)
+        if 20 < count < 30:
+            print("query = ", query, "\nresult = ", result, "\nori_result = ", ori_result)
 
         TP = []
         for item in query:
